@@ -1,0 +1,79 @@
+########## VIRTUAL MACHINE SCALE SET #############################
+Orchestration modes for virtual machine scale sets in Azure:
+Flexible orchestration: any type of vm we can  achieve
+Uniform orchestration: Identical vm we can only be achieved
+
+Scaling:
+Manual: Manually we need to scale
+
+custom: sclaes in or out based on cpu and time threshold values. It can scale upto 1000 instances
+
+Use custom scale-in policies with Azure virtual machine scale sets:
+Default: The balancing is achieved through deletion of virtual machines from the unbalanced availability zones or fault domains until the distribution of virtual machines becomes balanced.
+NewestVM: This policy will delete the newest created virtual machine in the scale set, after balancing VMs across availability zones
+OldestVM: This policy will delete the oldest created virtual machine in the scale set, after balancing VMs across availability zones
+
+Upgrade policy with virtual machine scale sets
+Scale sets have an "upgrade policy" that determine how VMs are brought up-to-date with the latest scale set model. The three modes for the upgrade policy are:
+Automatic - In this mode, the scale set makes no guarantees about the order of VMs being brought down. The scale set may take down all VMs at the same time.
+Rolling - In this mode, the scale set rolls out the update in batches with an optional pause time between batches.
+Manual - In this mode, when you update the scale set model, nothing happens to existing VMs.
+
+
+
+
+############## Proximity placement groups #########################
+A proximity placement group is a logical grouping used to make sure that Azure compute resources are physically located close to each other. 
+Proximity placement groups are useful for workloads where low latency is a requirement.
+A proximity placement group is a resource in Azure. You need to create one before using it with other resources.
+You can also move an existing resource into a proximity placement group. When moving a resource into a proximity placement group, you should stop 
+
+For each proximity placement group, a colocation status property provides the current alignment status summary of the grouped resources.
+
+Aligned: Resource is within the same latency envelop of the proximity placement group.
+Unknown: at least one of the VM resources are deallocated. Once starting them back successfully, the status should go back to Aligned.
+Not aligned: at least one VM resource is not aligned with the proximity placement group. 
+            The specific resources which are not aligned will also be called out separately in the membership section
+
+*** NOTE: For the lowest latency, use proximity placement groups together with accelerated networking.
+
+
+############### Azure Bastion ###########################
+
+Azure Bastion is a service you deploy that lets you connect to a virtual machine using your browser and the Azure portal. 
+The Azure Bastion service is a fully platform-managed PaaS service that you provision inside your virtual network.
+Bastion provides secure RDP and SSH connectivity to all of the VMs in the virtual network in which it is provisioned. 
+Using Azure Bastion protects your virtual machines from exposing RDP/SSH ports to the outside world, while still providing secure access using RDP/SSH.
+
+The Bastion host is deployed in the virtual network that contains the AzureBastionSubnet subnet that has a minimum /26 prefix.
+The user selects the virtual machine to connect to.
+With a single click, the RDP/SSH session opens in the browser.
+No public IP is required on the Azure VM.
+
+
+######################## Recovery Services vault ######################################
+A Recovery Services vault is a management entity that stores recovery points created over time and provides an interface to perform backup-related operations. 
+These operations include taking on-demand backups, performing restores, and creating backup policies.
+
+You can use Recovery Services vaults to hold backup data for various Azure services such as IaaS VMs (Linux or Windows) and SQL Server in Azure VMs. 
+Recovery Services vaults support System Center DPM, Windows Server, Azure Backup Server, and more. 
+Recovery Services vaults make it easy to organize your backup data, while minimizing management overhead.
+
+##################### Backup vaults ###################################
+A Backup vault is a storage entity in Azure that houses backup data for certain newer workloads that Azure Backup supports. 
+You can use Backup vaults to hold backup data for various Azure services, such Azure Database for PostgreSQL servers and newer workloads that Azure Backup will support.
+A Backup vault is an entity that stores the backups and recovery points created over time. 
+The Backup vault also contains the backup policies that are associated with the protected resources.
+
+
+
+############################### Virtual network peering##################################
+Virtual network peering enables you to seamlessly connect two or more Virtual Networks in Azure. The virtual networks appear as one for connectivity purposes. 
+Azure supports the following types of peering:
+
+Virtual network peering: Connecting virtual networks within the same Azure region.
+Global virtual network peering: Connecting virtual networks across Azure regions.
+
+Each virtual network, including a peered virtual network, can have its own gateway. A virtual network can use its gateway to connect to an on-premises network. 
+You can also configure virtual network-to-virtual network connections by using gateways, even for peered virtual networks.
+

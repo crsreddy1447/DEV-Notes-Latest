@@ -1,0 +1,62 @@
+SVN
+SVN Checkout Command
+The svn checkout command is used to create the working copy of the SVN project.
+svn checkout URL Path  
+Or
+svn co URL Path  
+EX: svn co https://www.thegeekstuff.com/project/branches/release/migration/data/cfg /home/sasikala/cfg/
+This is like git clone
+
+SVN Add Command
+The svn add command is used to add the files in the repository for the SVN. Whenever we create a new file in our working copy, we have to send it to the SVN server.
+## Add specific folder/file
+svn add <folder/file> 
+## Add all items in 
+svn add *  
+
+SVN Delete Command
+The svn delete command is used to remove the files from the repository. When we perform a delete operation, it removes the file from the working. To delete it from the repository, run a commit command after the delete command.
+## Delete from local
+svn delete <filename>
+##To remove it from the repository  
+svn, commit -m "type your message."  
+
+SVN Diff Command
+The svn diff command is used to display the differences between two versions of files. We can find the differences between the working copy and the remote (SVN) copy.
+## See changes in file
+svn diff filename  
+## Compare two files in r1 and r2 Revisons
+svn diff -r R1: R2 filename  
+
+SVN Update Command
+The update command is used to update the working copy of the project. It brings the changes from the working copy to the repository. 
+## Update working copy from repo
+svn update <Path >
+
+## View Conflicts
+svn up
+df -- Diff-full
+p -- postpone
+
+## TO know the status
+svn status
+few status codes
+A -- Addition, D -- Deletion, M -- Modified, R -- Replaced, C -- conflicts, I -- Ignored, 
+? -- Not in repo
+
+##Resolve Conflicts
+svn resolve --accept=working README
+
+## Add branch
+svn copy <sourcebranch> <newbranch>
+Ex: svn copy trunk branches/jerry_branch
+
+## To get logs
+svn log
+
+The usual solution is to have the following top-level directories:
+
+trunk/: for the main development tree, this is usually where all the development go.
+branches/: for implementing features that needs to be done separately from the main trunk development tree. E.g. the feature is complex and it needs more than one commit and we want to merge it back in one go.
+tags/: for released versions of a software product that will not change in the future, but would be useful to checkout sometime later.
+So brances and tags are just copies of trunk, where tags means "one-time copy" and branch means "moving copy".

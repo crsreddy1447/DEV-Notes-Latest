@@ -1,0 +1,51 @@
+#############DOCKER NETWORK #################
+$ docker info  ## Use this to get networks
+ plugin section --> network
+$ docker network ls ## list network 
+1. Bridge: Default network
+2. Host: Replicate host network. Used for standalone containers. Uses host nN/w
+3. Null: No network between containers
+4. Overlay
+
+Main networks are first three
+
+BRIDGE NETWORKING:
+command to attach a network
+## none network
+$ docker run ubuntu --network=none
+## host network
+$ docker run ubuntu --network=host
+
+docker0 is networkgateway
+ehto is communication to ouside
+Cannot communicate between network. No communication between cross network
+All containers can communicate among them in bridge network
+
+$ docker inspect <container name>
+ you will see the network used by docker
+ 
+## Create a network
+$ docker network create --d bridge --subnet=192.168.0.0/16
+$ docker network create -d overlay --subnet=192.168.10.0/25 --gateway=192.168.10.100
+
+## CONNECT TO NETWORK
+$ docker network connect [OPTIONS] <NETWORK Name> <CONTAINER Name>
+
+## You can use --link option to link another container with a preferred alias
+$ docker network connect --link container1:c1 multi-host-network container2
+## specify the IP address you want to be assigned to the container’s interface.
+$ docker network connect --ip 10.10.36.122 multi-host-network container2
+
+
+HOST NETWORKING:
+It uses the Host IP. If a container installed on VM the container take the VM IP
+It communicates with ip and port number of container
+Each container has its own ip on same host like vmip:port
+## host network
+$ docker run ubuntu --network=host
+$ docker run -d --network host --name my_nginx nginx
+
+
+
+
+

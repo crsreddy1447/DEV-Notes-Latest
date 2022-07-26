@@ -1,0 +1,158 @@
+Kubernetes Architecture
+Master
+1. ETCD Cluster: Which store information of containers, and about cluster
+2. Kube Controller Manager: To take control different funtions like node contoller, replica controller..
+3. Kube scheduler: Which schedules application/containers/nodes
+4. Kube Apiserver: To control all opertaions in cluster
+
+
+Node
+1. Kubelet: Listens instructions from kube api server and manages containers
+2. Kube Proxy: creates communication between services within the cluster, 
+3. Container runtime: Helps to run container
+
+Node port
+1. Range of node ports 30000-32767
+2. Port is Service port, Target port is POD port
+Sequence in yaml Targetport, port, nodeport
+****Need selector section in spec to get specific pod connect to service
+In selector section we give lables like app, type which are given in POD deployment
+
+KUBERNETES
+
+
+Kubernetes ConfigMaps usage to declare env variables
+When creating ConfigMaps, you can use a combination of all the options mentioned here:
+
+$ kubectl create configmap my-config
+➥   --from-file=foo.json         --> A single file
+➥   --from-file=bar=foobar.conf  --> A file stored under a custom key
+➥   --from-file=config-opts/     --> A whole directory
+➥   --from-literal=some=thing    --> A literal value
+
+FILE: --from-file nginx-custom-config.conf
+  volumes:
+  - name: conf
+    configMap:
+      name: nginx-cm
+      items:
+      - key: nginx-custom-config.conf
+        path: default.conf
+
+Key value:  --from-literal=color=red
+spec:
+  containers:
+  - name: test
+    image: nginx
+    env:
+    - name: COLOR   ## Define the name of the variable
+      valueFrom:
+        configMapKeyRef:
+          name: myconfig    ## Search for "myconfig" configmap which must be installed before creating this Pod
+          key: color 
+
+Claiming a PersistentVolume is a completely separate process from creating a pod, because you want the same PersistentVolumeClaim to 
+stay available even if the pod is rescheduled (remember, rescheduling means the previous pod is deleted and a new one is created).
+    volumeMounts:
+    - name: data
+      mountPath: /var/www
+  volumes:
+  - name: data
+    persistentVolumeClaim:
+      claimName: nfs-share-pvc
+	  
+CSI DRIVERS
+volumes:
+- name: secrets-store-inline
+  csi:
+    driver: secrets-store.csi.k8s.io
+    readOnly: true
+    volumeAttributes:
+      secretProviderClass: "application-nginx-spc"
+    nodePublishSecretRef:
+      name: secrets-store-creds
+	  
+ROLEBINDING
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+   name: dev-role-binding
+   namespace: dev
+subjects:
+- kind: User
+  name: user1
+  apiGroup: ""
+roleRef:
+  kind: Role
+  name: dev
+  apiGroup: ""
+  
+Memory LIMIT:
+spec.containers[].resources.limits.cpu
+spec.containers[].resources.limits.memory
+
+spec.containers[].resources.requests.cpu
+spec.containers[].resources.requests.memory
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "250m"
+      limits:
+        memory: "128Mi"
+        cpu: "500m"
+
+########INGRESS################
+
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  labels:
+    ds.tenant: tent
+    environment: test
+  name: ingress-route
+  namespace: test-ns
+spec:
+  rules:
+  - host: test.app.com
+    http:
+      paths:
+      - backend:
+          serviceName: test-ui
+          servicePort: 80
+        path: /
+        pathType: Prefix
+  tls:
+  - hosts:
+    - test.app.com
+
+ERRORS:
+Error from server (InternalError): error when applying patch:
+{"status":{"loadBalancer":{"ingress":[{"ip":" 10.114.36.7"}]}}}
+to:
+Resource: "networking.k8s.io/v1, Resource=ingresses", GroupVersionKind: "networking.k8s.io/v1, Kind=Ingress"
+Name: "react-ingress-route", Namespace: "ds-pcuspor-prod-ns"
+for: "STDIN": Internal error occurred: failed calling webhook "validate.nginx.ingress.kubernetes.io": Post "https://ingress-nginx-controller-admission.ingress-nginx.svc:443/networking/v1beta1/ingresses?timeout=10s": x509: certificate signed by unknown authority
+##[error]Bash exited with code '1'.
+
+https://www.youtube.com/watch?v=qezjiilv9BM
+
+
+-bash-1.1$ sqlplus user/password@localhost:1522/DATABASE1 
+
+mysql -uUSERNAME -pPASSWORD DATABASE -e exit
+
+http://www.dharmendrakeshari.com/sql-server-linux-installation-part4-install-sql-server-tools-ubuntu-updated/
+
+After connecting to Linux machine, switch to root user and connect to SQL Server on Linux using SQLCMD tool. If you have not installed the SQLCMD tool, you can follow the link –  Install SQL Server Tools on Ubuntu
+Syntax: sqlcmd -S <hostname> -U <username> -P <password>
+
+
+mysql -u [database_username] -p [database_password] -D [database_name] -e "SELECT * FROM [table_name]"
+
+https://www.msclusters.com/docs/sqlserver/Connecting%20to%20SQL%20Server%20via%20Shell1606977740.html
+
+https://docs.oracle.com/database/121/ADMQS/GUID-DE8A79BD-FAE4-4364-98FF-D2BD992A06E7.htm#ADMQS0361
+https://stackoverflow.com/questions/3779569/check-database-connectivity-using-shell-script
+https://damn.engineer/2022/02/07/tls-cert-azure-keyvault-kubernetes

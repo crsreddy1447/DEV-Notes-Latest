@@ -1,0 +1,177 @@
+POWERSHELL NOTES AND COMMANDS AND SCRIPTS
+
+version--  $PSVersionTable
+
+############ EXECUTION POLICY #############################################
+Execution Policy
+It's designed to prevent a user from unknowingly running a script
+PowerShell's execution policy is a safety feature that controls the conditions under which PowerShell loads configuration files and runs scripts.
+
+==> Set-ExecutionPolicy -ExecutionPolicy <policy> -Scope <scope>
+==> Get-ExecutionPolicy -Scope <scope>
+
+7types of policies
+1. AllSigned: Requires that all scripts and configuration files be signed by a trusted publisher, including scripts that you write on the local computer. Prompt before running
+2. Bypass: Nothing is blocked and there are no warnings or prompts.
+3. Default: Sets default execution policy  ** Restricted for win client  ** Remotesigned for win servers
+4. Remotesigned: Requires that all scripts and configuration files downloaded from the Internet are signed by a trusted publisher. The default execution policy for Windows server computers. Local written files/scripts not needed digital sign
+5. Restricted: Permits individual commands, but does not allow scripts.
+6. Undefined No execution policy is defined in the current scope
+7. Unrestricted: Unsigned scripts can run. There is a risk of running malicious scripts. Warns the user before running scripts and configuration files that are not from the local intranet
+
+SCOPE:
+1. MachinePolicy: Set by a Group Policy for all users of the computer.
+2. UserPolicy: Set by a Group Policy for the current user of the computer.
+3. Process: The Process scope only affects the current PowerShell session. The execution policy is saved in the environment variable $env:PSExecutionPolicyPreference, rather than the registry.
+4. CurrentUser: In this scope, the execution policy affects only the current scope. It's stored in the HKEY_CURRENT_USER registry subkey.
+5. LocalMachine: The execution policy affects all users on the current computer. It's stored in the HKEY_LOCAL_MACHINE registry subkey.
+
+** To remove the execution policy for a particular scope, set the execution policy to Undefined.
+ 
+################## FORMATTING and COMPARISON #######################
+==> Get-Service -Name w32time | Select-Object -Property Status, DisplayName, Can*
+Select-Object --> is used to get specific fields
+
+==> Get-Service -Name w32time | Format-List
+Format-List: cmdlet to override the default formatting and return the results in a list.
+
+Format-Table cmdlet formats the output of a command as a table with the selected properties of the object in each column.
+use the -Property parameter to select the properties that you want to display
+
+To view all the properties: Get-Service | Get-Member -MemberType Properties.
+
+==> Get-Service | Where-Object {$_.Status -eq "stopped"} | Format-Table DisplayName, StartType, Status
+
+######################## LOOPING --- FOREACH-- FOR -- DO -- WHEN ##############################
+
+ForEach-Object is a cmdlet for iterating through items in a pipeline such as with PowerShell
+When using the foreach keyword, you must store all of the items in memory before iterating through them
+*** ForEach-Object always follwed by  $_.
+==> Get-Process | ForEach-Object {$_.ProcessName}
+**Within the script block, use the $_ variable to represent the current object.
+
+
+FOREACH --
+==> $ComputerName = 'DC01', 'WEB01'
+    foreach ($Computer in $ComputerName) {
+              Get-ADComputer -Identity $Computer
+              }
+==> foreach ($file in Get-ChildItem)
+{
+  if ($file.length -gt 100KB)
+  {
+    Write-Host $file
+    Write-Host $file.length
+    Write-Host $file.lastaccesstime
+  }
+}
+
+
+OTHER WAY TO ELIMINATE LOOP IS 
+==> 'DC01', 'WEB01' | Get-ADComputer
+
+FOR
+A for loop iterates while a specified condition is true.
+==> for ($i = 1; $i -lt 5; $i++) {
+         }
+While
+While loop runs as long as the specified condition is true
+==> $date = Get-Date -Date 'November 22'
+while ($date.DayOfWeek -ne 'Thursday') {
+  $date = $date.AddDays(1)
+}
+Write-Output $date
+		 
+Do Until: runs while the specified condition is false
+Do While: is just the opposite. It runs as long as the specified condition evaluates to true
+
+
+########################### PowerShell Remoting #############################
+PowerShell remoting must be enabled on the remote computer. 
+==> Enable-PSRemoting 
+
+PowerShell remoting must be enabled on the remote computer. Use the Enable-PSRemoting cmdlet to enable PowerShell remoting.,
+one-To-One
+==> Enter-PSSession -ComputerName dc01 -Credential $Cred
+
+One-To-Many Remoting -- invoke command
+Invoke-Command -ComputerName dc01, sql02, web01 {Get-Service -Name W32time} -Credential $Cred
+
+#################### FUNCTIONS #########################################
+
+CmdletBinding: adds the common parameters automatically. CmdletBinding requires a param block, but the param block can be empty.
+==> function Test-MrParameterValidation {
+
+    [CmdletBinding()]
+    param (
+        [Parameter(Mandatory=$true)]]
+        [string]$ComputerName
+		[string[]]$ComputerName   ### [] datatype to allow for an array of strings
+    )
+    Write-Output $ComputerName
+}
+
+--ValidateNotNullOrEmpty---
+The problem is that default values can't be used with mandatory parameters. Instead, you'll need to use the ValidateNotNullOrEmpty parameter validation attribute with a default value.
+==> function Test-MrParameterValidation {
+    [CmdletBinding()]
+    param (
+        [ValidateNotNullOrEmpty()]  ## To pass default values
+        [string[]]$ComputerName = $env:COMPUTERNAME
+    )
+    Write-Output $ComputerName
+}
+
+############################### ARRAY DECLARE##################
+An empty array can be created by using @()
+PS> $data = @()
+PS> $data.count
+0
+
+PS> $data = @('Zero','One','Two','Three')
+PS> $data.count
+4
+
+We can specify a sequence of numbers with the built-in .. operator.
+$data[1..10]
+
+#################################### PSCustomObject #####################
+PSCustomObject is to have a simple way to create structured data.
+==> $myObject = [PSCustomObject]@{
+    Name     = 'Kevin'
+    Language = 'PowerShell'
+    State    = 'Texas'
+}
+
+##### IF - CONDITION ############
+$value = Get-MysteryValue
+if ( 5 -eq $value )
+{
+    # do something
+}
+
+############## SWITCH ################
+
+$item = 'Role'
+
+switch ( $item )
+{
+    Component
+    {
+        'is a component'
+    }
+    Role
+    {
+        'is a role'
+    }
+    Location
+    {
+        'is a location'
+    }
+}
+
+#################### Credential support to PowerShell ###########################
+
+==>$password = ConvertTo-SecureString "MyPlainTextPassword" -AsPlainText -Force
+$Cred = New-Object System.Management.Automation.PSCredential ("username", $password)
+automation tools require a non-interactive method. To create a credential without user interaction use --->PSCredential
